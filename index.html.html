@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ficha de Evolução - MEDBOIS</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
+    h1, h2, h3 {
+      color: #1a73e8;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 8px;
+      margin: 5px 0;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+    .resultado {
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+      font-weight: bold;
+      text-align: center;
+    }
+    .verde {
+      background-color: #4CAF50;
+      color: white;
+    }
+    .amarelo {
+      background-color: #FFC107;
+      color: black;
+    }
+    .vermelho {
+      background-color: #F44336;
+      color: white;
+    }
+    button {
+      background-color: #1a73e8;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 10px;
+      margin-right: 10px;
+    }
+    button:hover {
+      background-color: #0d5bba;
+    }
+    .hidden {
+      display: none;
+    }
+    .data-container {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+    .data-item {
+      flex: 1;
+    }
+    .data-item label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    .grid-ssvv {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    .grid-ssvv div {
+      display: flex;
+      flex-direction: column;
+    }
+    #comorbidades-container {
+      border: 1px solid #ddd;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+    }
+    .comorbidade-item {
+      margin: 5px 0;
+    }
+    .multiselect {
+      width: 100%;
+      position: relative;
+    }
+    .select-box {
+      position: relative;
+    }
+    .select-box select {
+      width: 100%;
+      font-weight: bold;
+    }
+    .over-select {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+    }
+    #checkboxes {
+      display: none;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 10px;
+      margin-top: 5px;
+      background: white;
+    }
+    #checkboxes label {
+      display: block;
+      margin: 5px 0;
+      cursor: pointer;
+    }
+    #checkboxes label:hover {
+      background-color: #f0f0f0;
+    }
+    .section {
+      margin-bottom: 20px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 15px;
+    }
+    .section:last-child {
+      border-bottom: none;
+    }
+    .exame-fisico-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    .exame-fisico-item {
+      margin-bottom: 10px;
+    }
+    .exame-fisico-item label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    .buttons-container {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+    #evolucao-texto {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: white;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <h1>Ficha de Evolução - MEDBOIS</h1>
+
+  <form id="ficha-evolucao">
+    <!-- Datas importantes -->
+    <div class="data-container">
+      <div class="data-item">
+        <label for="data-atual">Data Atual</label>
+        <input type="date" id="data-atual" readonly>
+      </div>
+      <div class="data-item">
+        <label for="data-internacao">Data de Internação</label>
+        <input type="date" id="data-internacao" required>
+      </div>
+      <div class="data-item">
+        <label for="dih">DIH (Dias de Internação)</label>
+        <input type="number" id="dih" readonly>
+      </div>
+    </div>
+
+    <table>
+      <tr>
+        <th>Nome</th>
+        <th>Idade</th>
+        <th>HD</th>
+        <th>Leito</th>
+      </tr>
+      <tr>
+        <td><input type="text" id="nome" required></td>
+        <td><input type="number" id="idade" min="0" max="120" required></td>
+        <td><input type="text" id="hd"></td>
+        <td><input type="text" id="leito"></td>
+      </tr>
+    </table>
+
+    <!-- Seção de Comorbidades com Menu Suspenso -->
+    <div class="section">
+      <h2>Comorbidades</h2>
+      <div id="comorbidades-container">
+        <div class="multiselect">
+          <div class="select-box">
+            <select id="comorbidades-select">
+              <option>Selecione as comorbidades</option>
+            </select>
+            <div class="over-select"></div>
+          </div>
+          <div id="checkboxes">
+            <label class="comorbidade-item">
+              <input type="checkbox" name="comorbidades" value="Nenhuma" id="nenhuma-comorbidade"> Nenhuma
+            </label>
+            <label class="comorbidade-item">
+              <input type="checkbox" name="comorbidades" value="Hipertensão Arterial"> Hipertensão Arterial
+            </label>
+            <label class="comorbidade-item">
+              <input type="checkbox" name="comorbidades" value="Diabetes Mellitus"> Diabetes Mellitus
+            </label>
+            <label class="comorbidade-item">
+              <input type="checkbox" name="comorbidades" value="Doença Cardiovascular"> Doença Cardiovascular
+            </label>
+            <label class="comorbidade-item">
+              <input type="checkbox" name="comorbidades" value="Obesidade"> Obesidade
+            </label>
+            <label class="comorbidade-item">
+              <input type="checkbox" name="comorbidades" value="Doença Renal Crônica"> Doença Renal Crônica
+            </label>
+            <label class="comorbidade-item">
+              <input type="checkbox" name="comorbidades" value="Outras" id="outras-comorbidade-check"> Outras
+            </label>
+            
+            <div id="outras-comorbidades" style="margin-top: 10px; display: none;">
+              <label for="outras-comorbidades-text">Especificar outras comorbidades:</label>
+              <input type="text" id="outras-comorbidades-text" placeholder="Liste outras comorbidades separadas por vírgula">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Novos tópicos adicionados -->
+    <div class="section">
+      <h2>Internações Prévias/Cirurgias Prévias</h2>
+      <textarea id="internacoes-cirurgias" rows="3" placeholder="Descreva as internações e cirurgias prévias do paciente"></textarea>
+    </div>
+
+    <div class="section">
+      <h2>Medicações em Uso</h2>
+      <textarea id="medicacoes-uso" rows="3" placeholder="Liste as medicações em uso pelo paciente"></textarea>
+    </div>
+
+    <div class="section">
+      <h2>Alergias</h2>
+      <textarea id="alergias" rows="2" placeholder="Descreva as alergias conhecidas do paciente"></textarea>
+    </div>
+
+    <div class="section">
+      <h2>HDA (História da Doença Atual)</h2>
+      <textarea id="hda" rows="4" placeholder="Descreva a história da doença atual"></textarea>
+    </div>
+
+    <div class="section">
+      <h2>SSVV - Últimas 12 Horas</h2>
+      <div class="grid-ssvv">
+        <div>
+          <label for="temp-ssvv">Temperatura (°C)</label>
+          <input type="number" id="temp-ssvv" step="0.1" min="30" max="45">
+        </div>
+        <div>
+          <label for="fc-ssvv">FC (bpm)</label>
+          <input type="number" id="fc-ssvv" min="20" max="250">
+        </div>
+        <div>
+          <label for="pas-ssvv">PAS (mmHg)</label>
+          <input type="number" id="pas-ssvv" min="50" max="300">
+        </div>
+        <div>
+          <label for="pad-ssvv">PAD (mmHg)</label>
+          <input type="number" id="pad-ssvv" min="30" max="200">
+        </div>
+        <div>
+          <label for="fr-ssvv">FR (rpm)</label>
+          <input type="number" id="fr-ssvv" min="0" max="60">
+        </div>
+        <div>
+          <label for="sato2-ssvv">SatO₂ (%)</label>
+          <input type="number" id="sato2-ssvv" min="70" max="100">
+        </div>
+        <div>
+          <label for="glicemia-ssvv">Glicemia (mg/dL)</label>
+          <input type="number" id="glicemia-ssvv" min="20" max="600">
+        </div>
+        <div>
+          <label for="diurese-ssvv">Diurese (mL)</label>
+          <input type="number" id="diurese-ssvv" min="0">
+        </div>
+      </div>
+
+      <label for="obs-ssvv">Observações dos SSVV:</label>
+      <textarea id="obs-ssvv" rows="3"></textarea>
+    </div>
+
+    <!-- Seção de Exame Físico -->
+    <div class="section">
+      <h2>Exame Físico</h2>
+      <div class="exame-fisico-grid">
+        <div class="exame-fisico-item">
+          <label for="exame-geral">Geral</label>
+          <textarea id="exame-geral" rows="2" placeholder="Estado geral, hidratação, nível de consciência, etc."></textarea>
+        </div>
+        <div class="exame-fisico-item">
+          <label for="exame-ap">AP (Ausculta Pulmonar)</label>
+          <textarea id="exame-ap" rows="2" placeholder="Ausculta pulmonar, murmúrios vesiculares, ruídos adventícios"></textarea>
+        </div>
+        <div class="exame-fisico-item">
+          <label for="exame-ac">AC (Ausculta Cardíaca)</label>
+          <textarea id="exame-ac" rows="2" placeholder="Bulhas, ritmo, sopros, extrasístoles"></textarea>
+        </div>
+        <div class="exame-fisico-item">
+          <label for="exame-abd">ABD (Abdome)</label>
+          <textarea id="exame-abd" rows="2" placeholder="Inspeção, palpação, percussão, ausculta"></textarea>
+        </div>
+        <div class="exame-fisico-item">
+          <label for="exame-ext">EXT (Extremidades)</label>
+          <textarea id="exame-ext" rows="2" placeholder="Edema, pulsos, perfusão, lesões"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Escala de Glasgow -->
+    <div class="section">
+      <h2>Escala de Glasgow</h2>
+      <table>
+        <tr>
+          <th>Parâmetro</th>
+          <th>Resposta</th>
+          <th>Pontuação</th>
+        </tr>
+        <tr>
+          <td>Abertura Ocular</td>
+          <td>
+            <select id="glasgow-olhos">
+              <option value="4">Espontânea</option>
+              <option value="3">À voz</option>
+              <option value="2">À dor</option>
+              <option value="1">Nenhuma</option>
+            </select>
+          </td>
+          <td id="glasgow-olhos-score">4</td>
+        </tr>
+        <tr>
+          <td>Resposta Verbal</td>
+          <td>
+            <select id="glasgow-verbal">
+              <option value="5">Orientada</option>
+              <option value="4">Confusa</option>
+              <option value="3">Palavras inapropriadas</option>
+              <option value="2">Sons incompreensíveis</option>
+              <option value="1">Nenhuma</option>
+            </select>
+          </td>
+          <td id="glasgow-verbal-score">5</td>
+        </tr>
+        <tr>
+          <td>Resposta Motora</td>
+          <td>
+            <select id="glasgow-motora">
+              <option value="6">Obedece comandos</option>
+              <option value="5">Localiza dor</option>
+              <option value="4">Retirada à dor</option>
+              <option value="3">Flexão anormal</option>
+              <option value="2">Extensão anormal</option>
+              <option value="1">Nenhuma</option>
+            </select>
+          </td>
+          <td id="glasgow-motora-score">6</td>
+        </tr>
+      </table>
+      <div id="glasgow-total" class="resultado">Total Escala de Glasgow: 15</div>
+    </div>
+
+    <div class="section">
+      <h2>NEWS2 - National Early Warning Score 2</h2>
+      <table>
+        <tr>
+          <th>Parâmetro</th>
+          <th>Valor</th>
+          <th>Pontuação</th>
+        </tr>
+        <tr>
+          <td>Frequência Respiratória (rpm)</td>
+          <td><input type="number" id="respiracao" min="0" max="60"></td>
+          <td id="fr-score">0</td>
+        </tr>
+        <tr>
+          <td>Saturação de O₂ (%)</td>
+          <td><input type="number" id="sato2news" min="70" max="100"></td>
+          <td id="sato2-score">0</td>
+        </tr>
+        <tr>
+          <td>Suplemento de O₂</td>
+          <td>
+            <select id="uso_oxigenio">
+              <option value="0">Não</option>
+              <option value="2">Sim</option>
+            </select>
+          </td>
+          <td id="o2-score">0</td>
+        </tr>
+        <tr>
+          <td>Temperatura (°C)</td>
+          <td>
+            <input type="number" id="temperatura_news" step="0.1" min="30" max="45" placeholder="Ex: 36.5">
+            <div id="temp-error" class="hidden" style="color: red; font-size: 12px;">Valor inválido (use ponto decimal)</div>
+          </td>
+          <td id="temp-score">0</td>
+        </tr>
+        <tr>
+          <td>Pressão Arterial Sistólica (mmHg)</td>
+          <td><input type="number" id="pas_news" min="50" max="300"></td>
+          <td id="pas-score">0</td>
+        </tr>
+        <tr>
+          <td>Frequência Cardíaca (bpm)</td>
+          <td><input type="number" id="pulso_news" min="20" max="250"></td>
+          <td id="fc-score">0</td>
+        </tr>
+        <tr>
+          <td>Nível de Consciência</td>
+          <td>
+            <select id="nivel_consciencia">
+              <option value="0">Alerta</option>
+              <option value="3">Confusão/Agitação</option>
+              <option value="3">Responde apenas à voz</option>
+              <option value="3">Responde apenas à dor</option>
+              <option value="3">Inconsciente</option>
+            </select>
+          </td>
+          <td id="consciencia-score">0</td>
+        </tr>
+      </table>
+
+      <div id="news2-total" class="resultado">Total NEWS2: 0</div>
+    </div>
+
+    <!-- Tópico Conduta -->
+    <div class="section">
+      <h2>Conduta</h2>
+      <textarea id="conduta" rows="4" placeholder="Descreva a conduta médica para o paciente"></textarea>
+    </div>
+
+    <div class="buttons-container">
+      <button type="button" onclick="limparFormulario()" style="background-color: #f44336;">Limpar Textos</button>
+      <button type="button" onclick="criarEvolucao()" style="background-color: #4CAF50;">Criar Evolução</button>
+    </div>
+  </form>
+
+  <div id="evolucao-texto"></div>
+
+  <script>
+    // Configurar data atual automaticamente ao carregar a página
+    document.addEventListener('DOMContentLoaded', function() {
+      const hoje = new Date();
+      const dataAtual = hoje.toISOString().split('T')[0];
+      document.getElementById('data-atual').value = dataAtual;
+      
+      // Calcular DIH quando a data de internação for alterada
+      document.getElementById('data-internacao').addEventListener('change', calcularDIH);
+      
+      // Configurar comportamento das comorbidades
+      configurarComorbidades();
+      configurarMenuSuspenso();
+      
+      // Configurar eventos para a Escala de Glasgow
+      document.getElementById('glasgow-olhos').addEventListener('change', calcularGlasgow);
+      document.getElementById('glasgow-verbal').addEventListener('change', calcularGlasgow);
+      document.getElementById('glasgow-motora').addEventListener('change', calcularGlasgow);
+      
+      // Configurar eventos para o NEWS2
+      document.querySelectorAll('#ficha-evolucao input, #ficha-evolucao select').forEach(element => {
+        if (element.id !== 'data-atual' && element.id !== 'data-internacao') {
+          element.addEventListener('change', calcularNews);
+        }
+      });
+      
+      // Calcular escalas inicialmente
+      calcularGlasgow();
+      calcularNews();
+    });
+
+    // Função para configurar o menu suspenso de comorbidades
+    function configurarMenuSuspenso() {
+      const multiselect = document.querySelector('.multiselect');
+      const selectBox = multiselect.querySelector('.select-box');
+      const overSelect = multiselect.querySelector('.over-select');
+      const checkboxes = multiselect.querySelector('#checkboxes');
+      
+      // Mostrar/ocultar checkboxes quando clicar na área do select
+      overSelect.addEventListener('click', function() {
+        checkboxes.style.display = checkboxes.style.display === 'block' ? 'none' : 'block';
+      });
+      
+      // Fechar menu quando clicar fora
+      document.addEventListener('click', function(e) {
+        if (!multiselect.contains(e.target)) {
+          checkboxes.style.display = 'none';
+        }
+      });
+    }
+
+    // Função para configurar o comportamento das comorbidades
+    function configurarComorbidades() {
+      const nenhumaCheckbox = document.getElementById('nenhuma-comorbidade');
+      const outrasCheckbox = document.getElementById('outras-comorbidade-check');
+      const outrasDiv = document.getElementById('outras-comorbidades');
+      const outrasText = document.getElementById('outras-comorbidades-text');
+      const todasComorbidades = document.querySelectorAll('input[name="comorbidades"]');
+      
+      // Quando "Nenhuma" é marcada, desmarca todas as outras
+      nenhumaCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+          todasComorbidades.forEach(cb => {
+            if (cb !== this) cb.checked = false;
+          });
+          outrasDiv.style.display = 'none';
+          outrasText.value = '';
+        }
+      });
+      
+      // Quando qualquer outra é marcada, desmarca "Nenhuma"
+      todasComorbidades.forEach(cb => {
+        if (cb !== nenhumaCheckbox) {
+          cb.addEventListener('change', function() {
+            if (this.checked) {
+              nenhumaCheckbox.checked = false;
+              if (this === outrasCheckbox) {
+                outrasDiv.style.display = 'block';
+              }
+            } else if (this === outrasCheckbox) {
+              outrasDiv.style.display = 'none';
+              outrasText.value = '';
+            }
+          });
+        }
+      });
+    }
+
+    // Função para calcular DIH (Dias de Internação Hospitalar)
+    function calcularDIH() {
+      const dataInternacao = document.getElementById('data-internacao').value;
+      const dataAtual = document.getElementById('data-atual').value;
+      
+      if (!dataInternacao) return;
+      
+      const diffTime = Math.abs(new Date(dataAtual) - new Date(dataInternacao));
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+      
+      document.getElementById('dih').value = diffDays;
+    }
+
+    // Função para calcular a Escala de Glasgow
+    function calcularGlasgow() {
+      const olhos = parseInt(document.getElementById('glasgow-olhos').value);
+      const verbal = parseInt(document.getElementById('glasgow-verbal').value);
+      const motora = parseInt(document.getElementById('glasgow-motora').value);
+      const total = olhos + verbal + motora;
+      
+      // Atualizar pontuações individuais
+      document.getElementById('glasgow-olhos-score').textContent = olhos;
+      document.getElementById('glasgow-verbal-score').textContent = verbal;
+      document.getElementById('glasgow-motora-score').textContent = motora;
+      
+      // Atualizar total
+      const resultado = document.getElementById('glasgow-total');
+      resultado.textContent = `Total Escala de Glasgow: ${total}`;
+      resultado.className = 'resultado';
+      
+      // Classificação de risco
+      if (total >= 13) {
+        resultado.classList.add('verde');
+      } else if (total >= 9) {
+        resultado.classList.add('amarelo');
+      } else if (total >= 6) {
+        resultado.classList.add('laranja');
+      } else {
+        resultado.classList.add('vermelho');
+      }
+    }
+
+    // Função corrigida para cálculo do NEWS2 conforme literatura atual
+    function calcularNews() {
+      // Obter valores dos campos
+      const fr = parseInt(document.getElementById('respiracao').value) || 0;
+      const sato2 = parseInt(document.getElementById('sato2news').value) || 0;
+      const suplementoO2 = parseInt(document.getElementById('uso_oxigenio').value) || 0;
+      
+      // Tratamento especial para temperatura (aceita valores decimais)
+      let temp = 0;
+      const tempInput = document.getElementById('temperatura_news').value;
+      if (tempInput && !isNaN(tempInput)) {
+        temp = parseFloat(tempInput);
+      } else {
+        document.getElementById('temp-error').classList.remove('hidden');
+        return;
+      }
+      document.getElementById('temp-error').classList.add('hidden');
+      
+      const pas = parseInt(document.getElementById('pas_news').value) || 0;
+      const fc = parseInt(document.getElementById('pulso_news').value) || 0;
+      const nivelConsciencia = parseInt(document.getElementById('nivel_consciencia').value) || 0;
+
+      // Cálculo conforme parâmetros atualizados
+      let scoreFR = 0;
+      if (fr <= 8) scoreFR = 3;
+      else if (fr >= 9 && fr <= 11) scoreFR = 1;
+      else if (fr >= 12 && fr <= 20) scoreFR = 0;
+      else if (fr >= 21 && fr <= 24) scoreFR = 2;
+      else if (fr >= 25) scoreFR = 3;
+
+      let scoreSatO2 = 0;
+      if (sato2 <= 91) scoreSatO2 = 3;
+      else if (sato2 >= 92 && sato2 <= 93) scoreSatO2 = 2;
+      else if (sato2 >= 94 && sato2 <= 95) scoreSatO2 = 1;
+      else if (sato2 >= 96) scoreSatO2 = 0;
+
+      // Suplemento de oxigênio mantém a mesma pontuação
+      const scoreO2 = suplementoO2;
+
+      let scoreTemp = 0;
+      if (temp <= 35.0) scoreTemp = 3;
+      else if (temp >= 35.1 && temp <= 36.0) scoreTemp = 1;
+      else if (temp >= 36.1 && temp <= 38.0) scoreTemp = 0;
+      else if (temp >= 38.1 && temp <= 39.0) scoreTemp = 1;
+      else if (temp >= 39.1) scoreTemp = 2;
+
+      let scorePAS = 0;
+      if (pas <= 90) scorePAS = 3;
+      else if (pas >= 91 && pas <= 100) scorePAS = 2;
+      else if (pas >= 101 && pas <= 110) scorePAS = 1;
+      else if (pas >= 111 && pas <= 219) scorePAS = 0;
+      else if (pas >= 220) scorePAS = 3;
+
+      let scoreFC = 0;
+      if (fc <= 40) scoreFC = 3;
+      else if (fc >= 41 && fc <= 50) scoreFC = 1;
+      else if (fc >= 51 && fc <= 90) scoreFC = 0;
+      else if (fc >= 91 && fc <= 110) scoreFC = 1;
+      else if (fc >= 111 && fc <= 130) scoreFC = 2;
+      else if (fc >= 131) scoreFC = 3;
+
+      // Nível de consciência (AVPU)
+      const scoreConsciencia = nivelConsciencia;
+
+      // Atualizar escores individuais na tabela
+      document.getElementById('fr-score').textContent = scoreFR;
+      document.getElementById('sato2-score').textContent = scoreSatO2;
+      document.getElementById('o2-score').textContent = scoreO2;
+      document.getElementById('temp-score').textContent = scoreTemp;
+      document.getElementById('pas-score').textContent = scorePAS;
+      document.getElementById('fc-score').textContent = scoreFC;
+      document.getElementById('consciencia-score').textContent = scoreConsciencia;
+
+      // Calcular total
+      const total = scoreFR + scoreSatO2 + scoreO2 + scoreTemp + scorePAS + scoreFC + scoreConsciencia;
+
+      // Atualizar resultado
+      const resultado = document.getElementById('news2-total');
+      resultado.textContent = `Total NEWS2: ${total}`;
+      resultado.className = 'resultado';
+
+      // Classificação de risco conforme diretrizes atualizadas
+      if (total <= 4 && scoreConsciencia === 0) {
+        resultado.classList.add('verde');
+        resultado.textContent += ' - Baixo risco';
+      } else if (total === 5 || (total >= 3 && scoreConsciencia === 3)) {
+        resultado.classList.add('amarelo');
+        resultado.textContent += ' - Risco intermediário';
+      } else if (total >= 6 || scoreConsciencia === 3) {
+        resultado.classList.add('vermelho');
+        resultado.textContent += ' - Alto risco';
+      }
+    }
+
+    // Função para criar a evolução médica
+    function criarEvolucao() {
+      // Obter dados do formulário
+      const dataAtual = document.getElementById('data-atual').value;
+      const nome = document.getElementById('nome').value;
+      const idade = document.getElementById('idade').value;
+      const hd = document.getElementById('hd').value;
+      const leito = document.getElementById('leito').value;
+      const dih = document.getElementById('dih').value;
+      
+      // Comorbidades
+      const comorbidadesSelecionadas = Array.from(document.querySelectorAll('input[name="comorbidades"]:checked'))
+        .map(cb => cb.value === "Outras" ? document.getElementById('outras-comorbidades-text').value : cb.value)
+        .filter(v => v !== "Nenhuma");
+      const comorbidades = comorbidadesSelecionadas.length > 0 ? comorbidadesSelecionadas.join(", ") : "Nenhuma";
+      
+      // Outros dados
+      const internacoes = document.getElementById('internacoes-cirurgias').value;
+      const medicacoes = document.getElementById('medicacoes-uso').value;
+      const alergias = document.getElementById('alergias').value;
+      const hda = document.getElementById('hda').value;
+      
+      // SSVV
+      const temp = document.getElementById('temp-ssvv').value;
+      const fc = document.getElementById('fc-ssvv').value;
+      const pas = document.getElementById('pas-ssvv').value;
+      const pad = document.getElementById('pad-ssvv').value;
+      const fr = document.getElementById('fr-ssvv').value;
+      const sato2 = document.getElementById('sato2-ssvv').value;
+      const glicemia = document.getElementById('glicemia-ssvv').value;
+      const diurese = document.getElementById('diurese-ssvv').value;
+      const obsSSVV = document.getElementById('obs-ssvv').value;
+      
+      // Exame físico
+      const exameGeral = document.getElementById('exame-geral').value;
+      const exameAP = document.getElementById('exame-ap').value;
+      const exameAC = document.getElementById('exame-ac').value;
+      const exameABD = document.getElementById('exame-abd').value;
+      const exameEXT = document.getElementById('exame-ext').value;
+      
+      // Escala de Glasgow
+      const glasgowTotal = document.getElementById('glasgow-total').textContent;
+      
+      // NEWS2
+      const news2Total = document.getElementById('news2-total').textContent;
+      
+      // Conduta
+      const conduta = document.getElementById('conduta').value;
+      
+      // Criar texto da evolução
+      const evolucao = `
+EVOLUÇÃO MÉDICA - ${dataAtual}
+
+Paciente: ${nome}
+Idade: ${idade} anos
+HD: ${hd}
+Leito: ${leito}
+DIH: ${dih} dias
+
+COMORBIDADES: ${comorbidades}
+
+INTERNAÇÕES/CIRURGIAS PRÉVIAS:
+${internacoes || "Não relatadas"}
+
+MEDICAÇÕES EM USO:
+${medicacoes || "Nenhuma relatada"}
+
+ALERGIAS:
+${alergias || "Nenhuma relatada"}
+
+HDA:
+${hda || "Não preenchido"}
+
+SSVV - Últimas 12 horas:
+- Temperatura: ${temp || "--"} °C
+- FC: ${fc || "--"} bpm
+- PA: ${pas || "--"}/${pad || "--"} mmHg
+- FR: ${fr || "--"} rpm
+- SatO₂: ${sato2 || "--"} %
+- Glicemia: ${glicemia || "--"} mg/dL
+- Diurese: ${diurese || "--"} mL
+${obsSSVV ? "Observações: " + obsSSVV : ""}
+
+EXAME FÍSICO:
+- Geral: ${exameGeral || "Não preenchido"}
+- AP: ${exameAP || "Não preenchido"}
+- AC: ${exameAC || "Não preenchido"}
+- ABD: ${exameABD || "Não preenchido"}
+- EXT: ${exameEXT || "Não preenchido"}
+
+${glasgowTotal}
+
+${news2Total}
+
+CONDUTA:
+${conduta || "Não preenchida"}
+
+      `;
+      
+      // Exibir a evolução
+      document.getElementById('evolucao-texto').textContent = evolucao;
+    }
+
+    // Função para limpar os campos de texto
+    function limparFormulario() {
+      // Limpar campos de texto
+      document.querySelectorAll('textarea').forEach(area => {
+        area.value = '';
+      });
+      
+      // Limpar campo de outras comorbidades
+      document.getElementById('outras-comorbidades-text').value = '';
+      document.getElementById('outras-comorbidades').style.display = 'none';
+      
+      // Limpar evolução gerada
+      document.getElementById('evolucao-texto').textContent = '';
+      
+      // Manter dados básicos e cálculos
+    }
+
+    // Validação especial para o campo de temperatura
+    document.getElementById('temperatura_news').addEventListener('input', function() {
+      const tempInput = this.value;
+      if (tempInput && isNaN(tempInput)) {
+        document.getElementById('temp-error').classList.remove('hidden');
+      } else {
+        document.getElementById('temp-error').classList.add('hidden');
+      }
+    });
+  </script>
+</body>
+</html>
